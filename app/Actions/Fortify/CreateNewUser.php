@@ -3,7 +3,7 @@
 namespace App\Actions\Fortify;
 
 use App\Models\User;
-use App\Models\Roles;
+use App\Models\Role;
 use App\Models\Invitation;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -34,10 +34,6 @@ class CreateNewUser implements CreatesNewUsers
         ]);
 
         $user->roles()->sync('3');
-        
-        $invitation = Invitation::where('email', $user->email)->firstOrFail();
-        $invitation->registered_at = $user->created_at;
-        $invitation->save();
 
         return $user;
     }
