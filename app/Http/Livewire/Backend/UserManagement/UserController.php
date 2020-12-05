@@ -35,7 +35,7 @@ class UserController extends Component
 
     public function mount()
     {
-        $this->editing = $this->resetUserForm();
+        $this->user = $this->resetUserForm();
     }
 
     public function toggleShowFilters()
