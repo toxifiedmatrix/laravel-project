@@ -12,13 +12,13 @@ class UserController extends Component
 {
     use WithPagination;
 
-    public $search;
     public $sortField;
     public $sortDirection = 'asc';
     public $showEditModal = false;
     public $showFilters = false;
     public $selected = [];
     public $filters = [
+        'search' => "",
         'email' => null,
         'role' => ''
     ];
@@ -31,17 +31,31 @@ class UserController extends Component
         'role' => 'required'
     ];
 
-    //protected $queryString = ['sortField', 'sortDirection'];
+    protected $queryString = ['sortField', 'sortDirection'];
 
-    public function render()
+    public function mount()
     {
-        $users = User::query()
-            ->when($this->filters['email'], fn($query, $email) => $query->where('email', $email))
-            ->when($this->filters['role'], fn($query, $role) => $query->whereHas('roles', fn ($query) => $query->where('id', $role)))
-            ->search('name', $this->search)
-            ->paginate(5);
-        $roles = Role::all();
-        return view('livewire.backend.user-management.user-controller', ['users' => $users, 'roles' => $roles]);
+        $this->editing = $this->resetUserForm();
+    }
+
+    public function toggleShowFilters()
+    {
+        $this->showFilters = ! $this->showFilters;
+    }
+
+    public function updatedFilters() 
+    { 
+        $this->resetPage();
+    }
+
+    public function resetFilters() 
+    { 
+        $this->reset('filters'); 
+    }
+
+    public function resetUserForm()
+    {
+        return User::make();
     }
 
     public function sortBy($field)
@@ -51,16 +65,6 @@ class UserController extends Component
             : 'asc';
 
         $this->sortField;
-    }
-
-    public function toggleShowFilters()
-    {
-        $this->showFilters = ! $this->showFilters;
-    }
-
-    public function resetUserForm()
-    {
-        return User::make();
     }
 
     public function create()
@@ -92,5 +96,17 @@ class UserController extends Component
         $user = User::whereKey($this->selected)->first();
         $user->roles()->detach();
         $user->delete();
+    }
+
+    public function render()
+    {
+        $users = User::query()
+            ->when($this->filters['email'], fn($query, $email) => $query->where('email', 'like', '%'.$email.'%'))
+            ->when($this->filters['role'], fn($query, $role) => $query->whereHas('roles', fn ($query) => $query->where('id', $role)))
+            ->when($this->filters['search'], fn($query, $search) => $query->where('name', 'like', '%'.$search.'%'))
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->paginate(5);
+        $roles = Role::all();
+        return view('livewire.backend.user-management.user-controller', ['users' => $users, 'roles' => $roles]);
     }
 }

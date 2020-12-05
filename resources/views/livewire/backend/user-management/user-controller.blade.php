@@ -10,7 +10,7 @@
 
                 <div class="flex justify-between">
                     <div class="w-2/4 flex space-x-4">
-                        <x-input.text wire:model="search" placeholder="Search Users..." />
+                        <x-input.text wire:model="filters.search" placeholder="Search Users..." />
                         <x-button.link wire:click="toggleShowFilters">@if ($showFilters) Hide @endif Advanced Search</x-button.link>
                     </div>
                     <div class="space-x-2">
@@ -43,6 +43,9 @@
                                     <option value="{{ $role->id }}">{{ $role->name }}</option>
                                     @endforeach
                                 </x-input.select>
+                            </x-input.group>    
+                            <x-input.group inline for="resetFilters" label="">
+                                <x-button.link wire:click="resetFilters" class="absolute right-0 bottom-0 p-4">Reset Filters</x-button.link>
                             </x-input.group>
                         </div>
                     </div>
@@ -64,8 +67,8 @@
 
                     <x-slot name="body">
                         @forelse($users as $key => $user)
-                            <x-table.row wire:loading.class.delay="opacity-50">
-                                <x-table.cell wire:key="row-{{ $user->id }}" class="pr-0">
+                            <x-table.row wire:key="row-{{ $user->id }}" wire:loading.class.delay="opacity-50">
+                                <x-table.cell class="pr-0">
                                     <x-input.checkbox wire:model="selected" value="{{ $user->id }}" />
                                 </x-table.cell>
                                 <x-table.cell>{{ $users->firstitem() + $key }}</x-table.cell>
@@ -123,7 +126,7 @@
 
             <x-slot name="footer">
                 <x-button.secondary wire:click="$set('showEditModal', false)">Cancel</x-button.secondary>
-                <x-button.primary wire:click.prevent="save">Save</x-button.primary>
+                <x-button.primary type="submit">Save</x-button.primary>
             </x-slot>
         </x-modal.dialog>
     </form>

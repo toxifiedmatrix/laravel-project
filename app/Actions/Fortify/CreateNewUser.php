@@ -34,6 +34,10 @@ class CreateNewUser implements CreatesNewUsers
         ]);
 
         $user->roles()->sync('3');
+        
+        $invitation = Invitation::where('email', $user->email)->firstOrFail();
+        $invitation->registered_at = $user->created_at;
+        $invitation->save();
 
         return $user;
     }
